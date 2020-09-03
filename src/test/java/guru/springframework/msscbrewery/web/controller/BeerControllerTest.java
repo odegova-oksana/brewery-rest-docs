@@ -18,6 +18,7 @@ import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
@@ -63,6 +64,8 @@ public class BeerControllerTest {
     public void getBeer() throws Exception {
         given(beerService.getBeerById(any(UUID.class))).willReturn(validBeer);
 
+        ConstrainedFields fields = new ConstrainedFields(BeerDto.class);
+
         mockMvc.perform(get("/api/v1/beer/{beerId}", UUID.randomUUID().toString()).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -72,12 +75,12 @@ public class BeerControllerTest {
                                 parameterWithName("beerId").description("UUID of desired beer to have.")
                         ),
                         responseFields(
-                                fieldWithPath("id").description("Id of Beer"),
-                                fieldWithPath("createdDate").description("createdDate of Beer"),
-                                fieldWithPath("lastUpdatedDate").description("lastModifiedDate of Beer"),
-                                fieldWithPath("beerName").description("beerName of Beer"),
-                                fieldWithPath("beerStyle").description("beerStyle of Beer"),
-                                fieldWithPath("upc").description("upc of Beer")
+                                fields.withPath("id").description("Id of Beer").type(UUID.class),
+                                fields.withPath("createdDate").description("createdDate of Beer").type(OffsetDateTime.class),
+                                fields.withPath("lastUpdatedDate").description("lastModifiedDate of Beer").type(OffsetDateTime.class),
+                                fields.withPath("beerName").description("beerName of Beer"),
+                                fields.withPath("beerStyle").description("beerStyle of Beer"),
+                                fields.withPath("upc").description("upc of Beer")
                         )));
     }
 
